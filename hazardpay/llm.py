@@ -18,7 +18,8 @@ def live() -> bool:
     return bool(KEY) and os.getenv("DEMO_MODE", "").lower() not in {"1", "true", "yes"}
 
 
-COOL = {"until": 0.0}  # after every model is out of quota, don't keep a user waiting on retries
+COOL = {"until": 0.0}
+DEAD: dict = {}  # model -> time its quota cooldown ends  # after every model is out of quota, don't keep a user waiting on retries
 
 
 def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
@@ -31,6 +32,8 @@ def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
     if time.time() < COOL["until"]:
         raise RuntimeError("Gemini over quota; using the fallback for a few minutes")
     chain = [model or MODEL] + [m for m in [MODEL] + FALLBACKS if m != (model or MODEL)]
+    good = [m for m in chain if DEAD.get(m, 0) < time.time()]
+    chain = good or chain
     for m in chain:  # under load Gemini answers 503/429: retry, then fall back to the next model
         r = None
         for attempt in range(2):
@@ -39,7 +42,10 @@ def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
             except httpx.HTTPError:
                 r = None
                 continue
-            if r.status_code not in (429, 500, 503) or "quota" in r.text.lower():
+            if r.status_code == 429 and "quota" in r.text.lower():
+                DEAD[m] = time.time() + 900  # this model is out of quota: skip it for a while
+                break
+            if r.status_code not in (429, 500, 503):
                 break
             time.sleep(1.5 * (attempt + 1))
         if r is None:
