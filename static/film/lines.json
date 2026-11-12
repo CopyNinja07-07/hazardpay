@@ -1,0 +1,13 @@
+{
+ "s1": "Delivery robots are already on our sidewalks.",
+ "s2": "And when one slips, tips or gets stuck, someone loses money. But nobody can insure a single robot job, because nobody knows how risky it is.",
+ "s3": "Hazard Pay breaks the robot in simulation before the job, prices the risk, and pays out automatically if it really fails.",
+ "s3b": "It works for any route. Describe it, or upload a photo, and Gemini builds it in the simulator.",
+ "s4": "We rebuild this exact route in a physics simulator and drive the robot through it 120 times. The share of days it fails becomes the price.",
+ "s5": "Then Gemini plays an engineer trying to break it. We find the worst realistic version of each idea, shrink it to the smallest thing that still breaks it, and check it on 32 new runs.",
+ "s6": "The robot practises on those failures, but only goes live if it passes three strict checks. It passes, and because it's safer, insuring it gets cheaper.",
+ "s7": "The price is a real PayPal payment. Approve it, and the cover is live.",
+ "s8": "Today it's icy and the robot gets stuck. We replay the exact run, taking away one condition at a time. Without the ice it would have made it. Ice is covered, so PayPal pays the operator.",
+ "s9": "Overload it beyond its rated weight, and the replay shows that's what caused it, so the claim is denied.",
+ "s10": "Robots, insured by the AI that tries to break them. That's Hazard Pay."
+}

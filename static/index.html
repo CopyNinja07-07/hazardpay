@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hazard Pay</title>
+<meta name="description" content="Robot insurance priced by an AI adversary that tries to break the robot first. Paid with PayPal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.2/dist/ag-grid-community.min.js"></script>
+<style>
+:root{--bg:#070a10;--panel:#0d121c;--panel2:#131a27;--line:#1e2839;--text:#e9eef7;--mute:#8e9bb1;--cyan:#4fe3d1;--orange:#ff8a3d;--red:#ff5c77;--green:#3ddc91;--blue:#4c8dff;--amber:#ffc24a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif}
+h1,h2,h3,.brand{font-family:"Space Grotesk",Inter,sans-serif}code,.mono{font-family:"JetBrains Mono",monospace;font-size:12.5px}
+.wrap{max-width:1480px;margin:0 auto;padding:0 24px}
+header{position:sticky;top:0;z-index:9;background:rgba(7,10,16,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--orange);display:grid;place-items:center;font:700 13px "Space Grotesk";color:#160a05}
+.brand{font-weight:700;font-size:19px;white-space:nowrap}.sp{flex:1}
+nav{display:flex;gap:2px;flex-wrap:nowrap;white-space:nowrap}nav button{background:none;border:0;color:var(--mute);font:600 14px Inter;padding:8px 11px;border-radius:8px;cursor:pointer}nav button.on{color:var(--text);background:var(--panel2)}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:11.5px;color:var(--mute);white-space:nowrap}.chip b{color:var(--text)}.chip.live b{color:var(--green)}
+.hero{padding:22px 0 4px}.hero h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.3px;max-width:1100px;font-weight:600}
+.dots{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;margin:12px 0 0}.dots i{display:block;aspect-ratio:1;border-radius:3px;background:var(--panel2);transition:background .25s}.dots i.ok{background:#2a5a47}.dots i.bad{background:var(--red)}.hero p{color:var(--mute);font-size:15.5px;max-width:1100px;margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+.card h2{margin:0 0 2px;font-size:19px}.sub{color:var(--mute);font-size:13.5px;margin:0 0 12px}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+select,input,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:14px Inter}
+.btn{background:var(--orange);color:#1a0b02;border:0;border-radius:10px;padding:10px 15px;font:700 14px Inter;cursor:pointer}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);font-weight:600}.btn.pp{background:#ffc439;color:#111}.btn.blue{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.5;cursor:wait}
+#view3d{height:470px;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative}
+.hud{position:absolute;left:12px;top:10px;font:600 12.5px "JetBrains Mono";color:var(--text);background:rgba(7,10,16,.7);padding:6px 9px;border-radius:8px;pointer-events:none}
+.badge{position:absolute;right:12px;top:10px;font:700 15px "Space Grotesk";padding:6px 12px;border-radius:10px;display:none}
+.big{font:700 44px "Space Grotesk";letter-spacing:-1px;line-height:1}.lbl{color:var(--mute);font-size:12.5px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:6px 0 2px}.bar>div{height:100%;background:linear-gradient(90deg,var(--orange),var(--red))}
+.share{margin:8px 0}.share .t{display:flex;justify-content:space-between;font-size:13.5px}
+.log{max-height:360px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.ev{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}.ev .t{color:var(--mute);font:11.5px "JetBrains Mono"}
+.ev.hit{border-color:#5a2030;background:#1a0d14}.ev.idea{border-color:#5a3020;color:#ffb08a;font-family:"JetBrains Mono",monospace;font-size:12.5px}.ev.ok{border-color:#1d4d36}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700}.pill.ok{background:#0f2b1f;color:var(--green)}.pill.bad{background:#2b0f17;color:var(--red)}.pill.warn{background:#2b220f;color:var(--amber)}
+.fails{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.fcard{background:var(--panel2);border:1px solid #4a1c2a;border-radius:12px;padding:12px;cursor:pointer}.fcard:hover{border-color:var(--red)}
+.fcard h3{margin:0 0 4px;font-size:15px}.fcard p{margin:0;color:var(--mute);font-size:13px}
+table.cf{width:100%;border-collapse:collapse;font-size:13.5px}table.cf td,table.cf th{border-bottom:1px solid var(--line);padding:7px;text-align:left}
+.hidden{display:none}.fine{color:var(--mute);font-size:12.5px}
+.policy{font:12.5px/1.6 "JetBrains Mono";background:#090d15;border:1px solid var(--line);border-radius:12px;padding:12px;white-space:pre-wrap}
+.how{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.how div{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;color:var(--mute)}.how b{display:block;color:var(--text);margin-bottom:4px;font-family:"Space Grotesk"}
+@media(max-width:900px){.grid2,.grid3,.how{grid-template-columns:1fr}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo">HP</div><div class="brand">Hazard Pay</div>
+  <nav><button class="on" data-v="under">1. Price the job</button><button data-v="adv">2. Try to break it</button><button data-v="train">3. Make it safer</button><button data-v="claim">4. Insure and claim</button><button data-v="ledger">Records</button><button data-v="how">How it works</button></nav>
+  <div class="sp"></div><span class="chip" id="cRobot">robot <b>v1</b></span><span class="chip" id="cAI">AI <b>…</b></span><span class="chip" id="cPP">PayPal <b>…</b></span>
+</div></header>
+
+<div class="wrap">
+<section class="hero">
+  <h1>Insurance for robot jobs, priced by first trying to break the robot.</h1>
+  <p>Bolt is a sidewalk delivery robot. Before it takes a delivery, we rebuild the route in a physics simulator and throw problems at it: ice, a sloped driveway, a curb, someone bumping into it. How often it fails sets the insurance price. If it really fails on the day, we replay what happened to find the cause, and PayPal pays the claim.</p>
+  <div class="card" style="margin-top:12px;padding:10px 14px 6px"><div class="row" style="justify-content:space-between"><h2 style="font-size:15px">How it all connects</h2><span class="fine">lights up as you go</span></div><div id="flow"></div></div>
+</section>
+
+<!-- 1 UNDERWRITE -->
+<section id="v-under">
+  <div class="grid2">
+    <div class="card"><h2>The route</h2><p class="sub">A physics simulation (MuJoCo) of the real route. Drag to look around.</p>
+      <div id="view3d"><div class="hud" id="hud">t 0.0 s · x 0.00 m</div><div class="badge" id="badge"></div></div>
+      <div class="row" style="margin-top:10px"><select id="mission"></select><button class="btn ghost" id="bPreview">Drive it on a dry day</button></div>
+      <div class="row" style="margin-top:8px"><input id="siteText" style="flex:1;min-width:240px" placeholder="Or describe a new route, e.g. back door with a steep driveway and a curb"><label class="btn ghost" style="cursor:pointer">Add photo<input id="sitePhoto" type="file" accept="image/*" hidden></label><button class="btn ghost" id="bSite">Build route</button></div>
+      <p class="fine" id="mdesc"></p>
+    </div>
+    <div class="card"><h2>Price</h2><p class="sub">Think crash test, run 120 times. Each run is a different day: some dry, some wet, some icy, sometimes a pedestrian bumps it. The share of days it fails is the risk.</p>
+      <div class="row"><button class="btn" id="bQuote">Run 120 days and price it</button><button class="btn ghost" id="bDays">Fast-forward the days</button></div><div class="dots" id="dots"></div>
+      <div id="quote" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ADVERSARY -->
+<section id="v-adv" class="hidden">
+  <div class="grid2">
+    <div class="card"><h2>Try to break it</h2><p class="sub">Gemini (Google’s AI) plays an engineer trying to make Bolt fail on this route. For each idea, a search finds the worst realistic version, then shrinks it to the smallest change that still causes a failure, and re-checks it on 32 new runs.</p>
+      <div class="row"><button class="btn" id="bAdv">Start the attack</button><span class="fine" id="advMission"></span></div>
+      <div class="log" id="advLog" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>What broke it</h2><p class="sub">Click one to watch it happen. Bolt learns from these in step 3.</p><div class="fails" id="fails"></div></div>
+  </div>
+</section>
+
+<!-- 3 RETRAIN -->
+<section id="v-train" class="hidden">
+  <div class="grid2">
+    <div class="card"><h2>Make it safer</h2><p class="sub">Bolt practises on what broke it. The new version only goes live if it passes three checks: it fails less on those problems, it still drives normally, and it does no worse on a fixed set of 16 tests that nobody is allowed to change.</p>
+      <div class="row"><button class="btn" id="bTrain">Practise and check</button><span class="fine mono" id="ghash"></span></div>
+      <div class="log" id="trainLog" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>The three checks</h2><div id="gate" class="fine">Not run yet.</div><h2 style="margin-top:16px">Versions of Bolt</h2><div id="versions"></div></div>
+  </div>
+</section>
+
+<!-- 4 POLICY & CLAIMS -->
+<section id="v-claim" class="hidden">
+  <div class="grid2">
+    <div class="card"><h2>Buy the cover</h2><p class="sub">The price is paid with PayPal. Approve it in PayPal, then come back and confirm to switch the cover on.</p>
+      <div class="row"><input id="opEmail" style="flex:1" value="operator@personal.example.com" title="PayPal email the claim is paid to"><button class="btn pp" id="bBuy">Pay with PayPal</button></div>
+      <label class="fine" style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" id="srvPay" onchange="window.__serverPay=this.checked"> Pay on the server with a PayPal sandbox test card (no login, sandbox only)</label>
+      <div id="polBox" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>The delivery day</h2><p class="sub">Leave it to chance, or pick the conditions to see how claims work.</p>
+      <div class="row"><select id="rWeather"><option value="">weather: drawn</option><option>dry</option><option>wet</option><option>ice</option></select>
+        <select id="rBump"><option value="">bump: drawn</option><option value="0">no bump</option><option value="90">90 N bump</option><option value="140">140 N bump</option></select>
+        <select id="rCargo"><option value="">cargo: declared</option><option value="14">14 kg (over the 10 kg limit)</option></select>
+        <select id="rSpeed"><option value="">speed: quoted</option><option value="1.6">1.6 m/s (operator sped it up)</option></select>
+        <input id="rSeed" type="number" placeholder="seed" style="width:90px"></div>
+      <div class="row" style="margin-top:10px"><button class="btn blue" id="bRun" disabled>Do the delivery</button><button class="btn" id="bClaim" disabled>Make a claim</button></div>
+      <div id="runOut" style="margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="card hidden" id="claimCard"><h2>Claim decision</h2><p class="sub">We replay the exact same run several times, each time taking away one thing. Whatever makes the failure disappear was the cause. Covered cause: paid. Excluded cause: not paid.</p><div id="claimOut"></div></div>
+</section>
+
+<!-- LEDGER -->
+<section id="v-ledger" class="hidden">
+  <div class="card"><h2>Policies sold</h2><div id="gPol" style="height:240px"></div></div>
+  <div class="card"><h2>Claims</h2><div id="gCl" style="height:240px"></div></div>
+  <div class="card"><h2>Every attack tried</h2><div id="gAtk" style="height:320px"></div></div>
+  <div class="card"><h2>Versions of Bolt</h2><div id="gVer" style="height:200px"></div><div class="row" style="margin-top:10px"><button class="btn ghost" id="bCsv">Download policies (CSV)</button></div></div>
+</section>
+
+<!-- HOW -->
+<section id="v-how" class="hidden"><div class="card"><h2>How Hazard Pay works</h2><div id="flowHow" style="margin:6px 0 14px"></div>
+  <div class="how">
+    <div><b>1. A copy of the route</b>We rebuild the delivery route in a physics simulator: the curb, the sloped driveway, the weather, the cargo, Bolt’s motors.</div>
+    <div><b>2. A price from 120 test days</b>Bolt drives the route 120 times on different days. If it fails 17 times out of 100, the price covers that risk.</div>
+    <div><b>3. An AI that hunts for weak spots</b>Gemini suggests ways Bolt could fail. We test each idea, keep only the ones that really break it, and shrink them to the simplest version.</div>
+    <div><b>4. Practise, then a strict check</b>Bolt practises on its failures. The new version only goes live if it beats a fixed set of tests. A safer robot gets a lower price.</div>
+    <div><b>5. Claims by replay</b>If Bolt fails on the day, we replay that run, removing one thing at a time. Covered cause: PayPal pays out. Excluded cause: no payout.</div>
+  <p class="fine" style="margin-top:12px">Every number on this page comes from the simulator. Gemini suggests ideas and writes explanations; it never sets a price or decides a claim.</p>
+</div></section>
+<p class="fine" style="margin:28px 0">Hazard Pay · PayPal AI Hackathon 2026 · MuJoCo · Google Gemini · PayPal Orders v2 + Payouts (sandbox) · AG Grid · MIT</p>
+</div>
+
+<script src="/static/replay.js?v=1794449673"></script>
+<script src="/static/flow.js?v=1794449673"></script>
+<script src="/static/app.js?v=1794449673"></script>
+<script src="/static/tour.js?v=1794449673"></script>
+</body>
+</html>

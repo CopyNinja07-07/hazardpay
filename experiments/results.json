@@ -1,0 +1,151 @@
+{
+ "engine": "gemini-3.6-flash",
+ "budget_programs": 9,
+ "arms": [
+  {
+   "arm": "adversary (gemini-3.6-flash)",
+   "programs": 9,
+   "confirmed": 6,
+   "strict": 3,
+   "mean_cost_of_confirmed": 2.253,
+   "rows": [
+    {
+     "name": "apron_wet_leaves_drift",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 5.246,
+     "minimal": "6.0 kg of cargo, a 8 deg sideways tilt (grip 0.35), leaves (mu 0.39) for 3.0 m from 2.0 m, 2.1 deg heading noise, -4.0 deg heading bias"
+    },
+    {
+     "name": "icy_apron_curb_stuck",
+     "confirmed": true,
+     "rate": 0.75,
+     "deviation": 5.955,
+     "minimal": "ice (mu 0.17) for 2.0 m from 3.5 m, a 6 cm curb at 5.6 m"
+    },
+    {
+     "name": "apron_shove_latency_slide",
+     "confirmed": true,
+     "rate": 0.719,
+     "deviation": 1.732,
+     "minimal": "a 8 deg sideways tilt (grip 0.43), a 115 N shove at 2.7 s"
+    },
+    {
+     "name": "cross_slope_ice_drift",
+     "confirmed": true,
+     "rate": 0.75,
+     "deviation": 1.482,
+     "minimal": "a 8 deg sideways tilt (grip 0.13)"
+    },
+    {
+     "name": "apron_curb_motor_stall",
+     "confirmed": true,
+     "rate": 1.0,
+     "deviation": 1.202,
+     "minimal": "a 6 cm curb at 5.0 m, motors at 55%"
+    },
+    {
+     "name": "cross_slope_shove_tip",
+     "confirmed": true,
+     "rate": 0.562,
+     "deviation": 1.714,
+     "minimal": "a 8 deg sideways tilt (grip 0.20), a 68 N shove at 2.5 s"
+    },
+    {
+     "name": "icy_apron_lateral_drift",
+     "confirmed": false,
+     "rate": 0.438,
+     "deviation": 7.222,
+     "minimal": "1.1 kg of cargo, ice (mu 0.17) for 3.3 m from 2.1 m, a 6 deg sideways tilt (grip 0.23), a 5 cm curb at 5.6 m"
+    },
+    {
+     "name": "heading_bias_curb_impact_on_apron",
+     "confirmed": true,
+     "rate": 0.719,
+     "deviation": 1.435,
+     "minimal": "6.0 kg of cargo, motors at 65%, a 5 cm curb at 5.6 m"
+    },
+    {
+     "name": "wet_apron_shove_curb_tip",
+     "confirmed": false,
+     "rate": 0.281,
+     "deviation": 5.052,
+     "minimal": "6.0 kg of cargo, wet (mu 0.40) for 3.2 m from 1.5 m, a 8 deg sideways tilt (grip 0.42), a 126 N shove at 2.5 s, a 5 cm curb at 5.6 m"
+    }
+   ]
+  },
+  {
+   "arm": "random programs",
+   "programs": 9,
+   "confirmed": 2,
+   "strict": 1,
+   "mean_cost_of_confirmed": 1.505,
+   "rows": [
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 4.5,
+     "minimal": "leaves (mu 0.50) for 1.8 m from 5.4 m, wet (mu 0.50) for 1.9 m from 1.6 m"
+    },
+    {
+     "name": "random",
+     "confirmed": true,
+     "rate": 0.844,
+     "deviation": 1.389,
+     "minimal": "a 6 deg sideways tilt (grip 0.08)"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 0.0,
+     "minimal": "0.0 kg of cargo, motors at 100%"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 2.5,
+     "minimal": "leaves (mu 0.50) for 1.7 m from 5.6 m, 0.0 deg heading noise"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 0.169,
+     "minimal": "motors at 100%, 17 ms control delay"
+    },
+    {
+     "name": "random",
+     "confirmed": true,
+     "rate": 1.0,
+     "deviation": 1.62,
+     "minimal": "a 8 deg ramp (grip 0.08)"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 0.057,
+     "minimal": "0.0 kg of cargo, -1.7 deg heading bias"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.0,
+     "deviation": 0.046,
+     "minimal": "0.0 deg heading noise, -1.4 deg heading bias"
+    },
+    {
+     "name": "random",
+     "confirmed": false,
+     "rate": 0.406,
+     "deviation": 1.042,
+     "minimal": "a 11 cm curb at 1.2 m, a 3 deg ramp (grip 1.00)"
+    }
+   ]
+  }
+ ],
+ "seconds": 182
+}

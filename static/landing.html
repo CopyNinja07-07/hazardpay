@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hazard Pay</title>
+<meta name="description" content="Insurance for robot jobs, priced by crash-testing the robot in simulation first, paid with PayPal.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#06080d;--panel:#0d121c;--line:#1c2638;--text:#eef2f8;--mute:#93a0b5;--orange:#ff8a3d;--cyan:#4fe3d1;--red:#ff5c77;--gold:#ffc439;--green:#3ddc91}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 Inter,system-ui,sans-serif}
+a{color:inherit}h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif;margin:0}em{font-style:italic;color:var(--orange);font-weight:400}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+nav{position:fixed;top:0;left:0;right:0;z-index:10;background:rgba(6,8,13,.75);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:24px;height:62px}
+.logo{display:flex;align-items:center;gap:10px;font:700 19px "Space Grotesk"}.logo i{width:30px;height:30px;border-radius:8px;background:var(--orange);display:grid;place-items:center;font:700 12px "Space Grotesk";color:#160a05;font-style:normal}
+nav .sp{flex:1}nav a.l{color:var(--mute);text-decoration:none;font-size:15px}nav a.l:hover{color:var(--text)}
+.btn{display:inline-block;padding:12px 20px;border-radius:12px;font-weight:600;text-decoration:none;font-size:15px}
+.btn.o{background:var(--orange);color:#1a0c04}.btn.g{border:1px solid var(--line);background:var(--panel)}
+header{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr;align-items:center;gap:24px;padding-top:80px}
+header h1{font-size:68px;line-height:1.02;letter-spacing:-2px}
+header p.lead{font-size:21px;color:var(--mute);max-width:560px;margin:22px 0 28px}
+header p.lead b{color:var(--text)}
+#hero3d{height:620px}
+.kicker{font:600 13px "JetBrains Mono";letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:14px}
+section{padding:110px 0;border-top:1px solid var(--line)}
+section h2{font-size:48px;line-height:1.08;letter-spacing:-1px;max-width:900px}
+section p.sub{color:var(--mute);font-size:19px;max-width:760px;margin:18px 0 0}
+.story{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.story blockquote{margin:0;font:400 italic 30px/1.45 Inter;color:#d8dfeb;border-left:3px solid var(--orange);padding-left:26px}
+.story blockquote b{font-style:normal;color:var(--text)}
+.stat{font:700 84px "Space Grotesk";letter-spacing:-2px;line-height:1}.stat.r{color:var(--red)}.stat.g{color:var(--gold)}.stat.c{color:var(--cyan)}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:44px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.card .n{font:700 34px "Space Grotesk";color:var(--orange)}.card h3{font-size:20px;margin:10px 0 8px}.card p{color:var(--mute);font-size:15px;margin:0}
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+.nums .card p{font-size:15px}
+.pp{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:40px}
+pre{margin:0;background:#0a0e16;border:1px solid #2a2410;border-radius:16px;padding:22px;font:500 14.5px/1.7 "JetBrains Mono";color:#ffe6a8;overflow:auto}
+pre .k{color:var(--gold)}pre .c{color:#7f8ba0}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:36px}
+.flow span{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:15px}
+.flow span.p{border-color:var(--gold);color:var(--gold)}.flow b{color:#3a465c}
+.why{background:linear-gradient(180deg,#0f0c03,#06080d);border:1px solid #3a3010;border-radius:22px;padding:34px;margin-top:28px}
+.why h3{font-size:30px}.why p{color:#d6cfb8;margin:10px 0 0}
+footer{padding:60px 0;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+u{text-decoration-color:var(--orange);text-underline-offset:5px}
+.reveal{opacity:0;transform:translateY(24px);transition:all .9s cubic-bezier(.2,.8,.2,1)}.reveal.in{opacity:1;transform:none}
+@media(max-width:900px){header,.story,.pp{grid-template-columns:1fr}header h1{font-size:44px}#hero3d{height:380px}.cards,.nums{grid-template-columns:1fr 1fr}section h2{font-size:34px}}
+@media(max-width:560px){.cards,.nums{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><div class="logo"><i>HP</i>Hazard Pay</div><div class="sp"></div>
+  <a class="l" href="#problem">Problem</a><a class="l" href="#how">How it works</a><a class="l" href="#paypal">PayPal</a>
+  <a class="btn o" href="/">Open the live app</a></div></nav>
+
+<div class="wrap">
+<header>
+  <div>
+    <div class="kicker">PayPal AI Hackathon 2026 · Robotics × Agentic Commerce</div>
+    <h1>Insurance for robot jobs, priced by <em>trying to break the robot first.</em></h1>
+    <p class="lead">Before a delivery robot takes a job, we <b>crash-test it 120 times</b> in a physics copy of that exact route. How often it fails becomes the price. If it really fails, we replay the run to find the cause, and <b>PayPal pays the claim in seconds</b>.</p>
+    <a class="btn o" href="#film">Watch the 3-minute film</a> &nbsp; <a class="btn g" href="https://github.com/CopyNinja07-07/hazardpay">GitHub</a>
+  </div>
+  <div id="hero3d"></div>
+</header>
+</div>
+
+<section id="problem"><div class="wrap story">
+  <div class="reveal">
+    <div class="kicker">The problem</div>
+    <blockquote>8:47 pm, the first snow of the year. Maya’s little bakery has one delivery left: <b>a birthday cake for a seven-year-old.</b> Her robot, Bolt, slides on the icy driveway into the road. <b>The cake never arrives.</b></blockquote>
+  </div>
+  <div class="reveal">
+    <div class="stat r">−$400</div>
+    <p class="sub">Robots now work on real sidewalks, steps and factory floors, and they fail. But <u>nobody can insure a single robot job</u>, because nobody can say how risky <i>this robot, on this route, tonight</i> really is. So the cover doesn’t exist, and small businesses like Maya’s carry the whole loss.</p>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="kicker reveal">How it works</div>
+  <h2 class="reveal">Don’t guess the risk. <em>Measure it.</em></h2>
+  <div class="cards">
+    <div class="card reveal"><div class="n">1</div><h3>Rebuild the route</h3><p>A MuJoCo physics copy of the real route: the slope, the curb, the weather odds. Describe it or upload a photo; Gemini builds it.</p></div>
+    <div class="card reveal"><div class="n">2</div><h3>Crash-test it 120×</h3><p>Every run is a different day: dry, rain, ice, a stranger bumping in. The failure rate is the risk.</p></div>
+    <div class="card reveal"><div class="n">3</div><h3>An AI hunts weak spots</h3><p>Gemini plays the villain: suggests how Bolt fails; we search, shrink and re-check it on 32 fresh runs.</p></div>
+    <div class="card reveal"><div class="n">4</div><h3>Safer → cheaper</h3><p>Bolt practises on its failures and ships only after 3 strict checks. A safer robot pays less.</p></div>
+    <div class="card reveal"><div class="n">5</div><h3>Claims by replay</h3><p>Replay the exact run, removing one thing at a time. Covered cause → PayPal payout. No paperwork.</p></div>
+  </div>
+  <div class="nums">
+    <div class="card reveal"><div class="stat r" style="font-size:56px">16.7%</div><p>of 120 simulated days, Bolt fails the icy back-door route</p></div>
+    <div class="card reveal"><div class="stat g" style="font-size:56px">$83.65</div><p>to insure a $400 delivery: <i>risk × cover × 1.25 + $0.30</i></p></div>
+    <div class="card reveal"><div class="stat c" style="font-size:56px">$66.95</div><p>after Bolt retrains and passes the locked 16-test gate</p></div>
+    <div class="card reveal"><div class="stat" style="font-size:56px">6 vs 2</div><p>confirmed failures found by the AI adversary vs blind random attacks, same budget</p></div>
+  </div>
+</div></section>
+
+<section id="paypal"><div class="wrap">
+  <div class="kicker reveal">PayPal, all the way down</div>
+  <h2 class="reveal">Every robot job becomes <u>two PayPal transactions</u>.</h2>
+  <div class="flow reveal"><span>Route</span><b>→</b><span>Physics test</span><b>→</b><span>Price</span><b>→</b><span class="p">PayPal Order</span><b>→</b><span>Cover on</span><b>→</b><span>Delivery</span><b>→</b><span>Replay</span><b>→</b><span class="p">PayPal Payout</span></div>
+  <div class="pp">
+    <pre class="reveal"><span class="c"># premium: the customer pays</span>
+<span class="k">POST /v2/checkout/orders</span>   intent=CAPTURE
+  PayPal-Request-Id   = policy hash   <span class="c"># idempotent</span>
+  reference_id        = policy HMAC signature
+<span class="k">POST /v2/checkout/orders/{id}/capture</span>
+
+<span class="c"># claim: the robot owner is paid</span>
+<span class="k">POST /v1/payments/payouts</span>
+  sender_item_id      = claim id
+<span class="c"># every event: verify-webhook-signature</span></pre>
+    <div class="reveal">
+      <p class="sub" style="margin-top:0">The price is a <b>PayPal Order</b> the customer approves. The policy’s cryptographic signature is stamped on the order, so every payment traces back to the exact risk we measured. A covered failure triggers a <b>PayPal Payout</b> to the owner. <i>Tested end to end on the PayPal sandbox</i>, including a real $400 sandbox payout.</p>
+      <div class="why"><h3>Why PayPal wins</h3><p>A brand-new category of payments: robot jobs. <i>Illustration:</i> 1 million robot jobs a month × a $1.50 average premium = <b>$1.5M a month</b> of new volume through PayPal Orders, plus every claim paid out with PayPal Payouts.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="film"><div class="wrap">
+  <div class="kicker reveal">The film</div>
+  <h2 class="reveal">Meet Bolt. <em>Watch him break, and get better.</em></h2>
+  <p class="sub reveal">A 3-minute film rendered from the real physics recordings, then the live app running on the PayPal sandbox. <a href="https://youtu.be/dJF1CIuEYY8" style="color:var(--orange)">Watch it on YouTube</a></p>
+</div></section>
+
+<footer><div class="wrap">Hazard Pay · built for the PayPal AI Hackathon 2026 · MuJoCo · Google Gemini · PayPal Orders v2 + Payouts · AG Grid · MIT licence · Suryansh Pratap Singh, Nikhil, Raj</div></footer>
+
+<script>
+// reveal on scroll
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("in")), { threshold: .15 });
+document.querySelectorAll(".reveal").forEach(e => io.observe(e));
+// a slowly turning 3D Bolt
+(function () {
+  const el = document.getElementById("hero3d"), R = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  R.setPixelRatio(Math.min(2, devicePixelRatio)); R.setSize(el.clientWidth, el.clientHeight); el.appendChild(R.domElement);
+  const S = new THREE.Scene(), cam = new THREE.PerspectiveCamera(32, el.clientWidth / el.clientHeight, .05, 50); cam.up.set(0, 0, 1); cam.position.set(2.6, -2.6, 1.4); cam.lookAt(0, 0, 0.25);
+  S.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a2030, .8)); const k = new THREE.DirectionalLight(0xffffff, .9); k.position.set(-3, -4, 6); S.add(k);
+  const r = new THREE.PointLight(0xff8a3d, 1.4, 8); r.position.set(1.5, 2, 1.2); S.add(r);
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .5, ...o }), G = new THREE.Group(); S.add(G);
+  const add = (geo, m, p, rot) => { const x = new THREE.Mesh(geo, m); x.position.set(...p); if (rot) x.rotation.set(...rot); G.add(x); return x; };
+  add(new THREE.BoxGeometry(.72, .52, .4), M(0xf1f3f6), [0, 0, 0]); add(new THREE.BoxGeometry(.66, .46, .03), M(0x2f7dff), [0, 0, .215]);
+  add(new THREE.BoxGeometry(.012, .38, .16), M(0x0b0f17), [.362, 0, .06]); add(new THREE.BoxGeometry(.34, .3, .18), M(0xd9893a), [0, 0, .32]);
+  const eyes = [.085, -.085].map(y => add(new THREE.BoxGeometry(.014, .075, .075), new THREE.MeshStandardMaterial({ color: 0x4fe3d1, emissive: 0x4fe3d1, emissiveIntensity: 1.2 }), [.37, y, .06]));
+  add(new THREE.CylinderGeometry(.007, .007, .9), M(0xff6a1a), [-.31, .21, .65], [Math.PI / 2, 0, 0]);
+  const flag = add(new THREE.PlaneGeometry(.2, .11), M(0xff6a1a, { side: THREE.DoubleSide }), [-.21, .21, 1.03], [Math.PI / 2, 0, 0]);
+  for (const ax of [.27, 0, -.27]) for (const sy of [.31, -.31]) add(new THREE.CylinderGeometry(.11, .11, .08, 28), M(0x111317), [ax, sy, -.18]);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(1.6, 64), M(0x121722, { roughness: .9 })); ground.position.z = -.29; S.add(ground);
+  let t = 0; (function loop() { requestAnimationFrame(loop); t += .016; G.rotation.z = Math.sin(t * .35) * .9 + .3; G.position.z = .01 * Math.sin(t * 3);
+    eyes.forEach(e => e.scale.z = (t % 3.6) < .1 ? .12 : 1); flag.rotation.z = .15 * Math.sin(t * 2.2); R.render(S, cam); })();
+  addEventListener("resize", () => { R.setSize(el.clientWidth, el.clientHeight); cam.aspect = el.clientWidth / el.clientHeight; cam.updateProjectionMatrix(); });
+})();
+</script>
+</body>
+</html>
