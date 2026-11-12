@@ -12,7 +12,7 @@ import random
 
 from . import llm
 from . import scenario as SC
-from .sim import rollout
+from .prerun import rollout
 from .underwrite import RATED_CARGO, _with_weather, sample_day, verify_policy
 
 

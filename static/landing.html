@@ -47,13 +47,13 @@ pre .k{color:var(--gold)}pre .c{color:#7f8ba0}
 footer{padding:60px 0;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
 u{text-decoration-color:var(--orange);text-underline-offset:5px}
 .reveal{opacity:0;transform:translateY(24px);transition:all .9s cubic-bezier(.2,.8,.2,1)}.reveal.in{opacity:1;transform:none}
-@media(max-width:900px){header,.story,.pp{grid-template-columns:1fr}header h1{font-size:44px}#hero3d{height:380px}.cards,.nums{grid-template-columns:1fr 1fr}section h2{font-size:34px}}
+@media(max-width:900px){header,.story,.pp{grid-template-columns:1fr}header h1{font-size:44px}#hero3d{height:380px}.cards,.nums{grid-template-columns:1fr 1fr!important}section h2{font-size:34px}}
 @media(max-width:560px){.cards,.nums{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <nav><div class="wrap"><div class="logo"><i>HP</i>Hazard Pay</div><div class="sp"></div>
-  <a class="l" href="#problem">Problem</a><a class="l" href="#how">How it works</a><a class="l" href="#paypal">PayPal</a>
+  <a class="l" href="#problem">Problem</a><a class="l" href="#how">How it works</a><a class="l" href="#paypal">PayPal</a><a class="l" href="#try">Try it</a><a class="l" href="#tools">Built with</a>
   <a class="btn o" href="/">Open the live app</a></div></nav>
 
 <div class="wrap">
@@ -119,13 +119,41 @@ u{text-decoration-color:var(--orange);text-underline-offset:5px}
   </div>
 </div></section>
 
+<section id="try"><div class="wrap">
+  <div class="kicker reveal">Try it yourself</div>
+  <h2 class="reveal">The working app is <em>live</em>. Insure a robot job in two minutes.</h2>
+  <p class="sub reveal">The real app on the PayPal sandbox. The robot’s physics was run ahead of time, so every answer is instant. Pricing, the AI adversary log, the gate, claims and every PayPal call happen live.</p>
+  <div class="reveal" style="margin-top:28px;display:flex;flex-wrap:wrap;gap:12px"><a class="btn o" href="/">Open the live app</a><a class="btn g" href="/?tour=1">Watch it play itself</a><a class="btn g" href="https://github.com/CopyNinja07-07/hazardpay#run-it">Run it on your laptop</a></div>
+  <div class="cards" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card reveal"><div class="n">1</div><h3>Quote</h3><p>Keep “Maple St back door”, press <b>Run 120 days and price it</b>: 120 simulated days become a price.</p></div>
+    <div class="card reveal"><div class="n">2</div><h3>Attack + retrain</h3><p><b>Start the attack</b>, then <b>Practise and check</b>. Watch the gate, re-price: it drops.</p></div>
+    <div class="card reveal"><div class="n">3</div><h3>Pay with PayPal</h3><p><b>Pay with PayPal</b> opens sandbox checkout. Log in with the sandbox buyer from the Devpost testing notes.</p></div>
+    <div class="card reveal"><div class="n">4</div><h3>Crash + claim</h3><p>Set weather to ice, <b>Do the delivery</b>, then <b>Make a claim</b>: replay decides, PayPal Payout pays.</p></div>
+  </div>
+  <p class="sub reveal" style="font-size:15px">Free hosting sleeps when idle: the first visit can take about a minute to wake up.</p>
+</div></section>
+
+<section id="tools"><div class="wrap">
+  <div class="kicker reveal">Built with</div>
+  <h2 class="reveal">The tools doing the work.</h2>
+  <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card reveal"><h3 style="color:var(--gold)">PayPal Orders v2</h3><p>The premium: create, buyer approval, capture. Idempotent request id, policy HMAC as reference id.</p></div>
+    <div class="card reveal"><h3 style="color:var(--gold)">PayPal Payouts</h3><p>The claim: paid to the robot owner in seconds, claim id as sender item id. Webhooks signature-verified.</p></div>
+    <div class="card reveal"><h3 style="color:var(--cyan)">Google Gemini</h3><p>The adversary’s hypotheses, a photo or description turned into a route, and the claim adjuster’s note.</p></div>
+    <div class="card reveal"><h3>MuJoCo</h3><p>The physics twin: a six-wheel robot, curbs, ramps, tilted aprons, ice, bumps, cargo, motor sag.</p></div>
+    <div class="card reveal"><h3>AG Grid</h3><p>The live ledgers: policies, claims, every attack and every robot version, side by side.</p></div>
+    <div class="card reveal"><h3>Render</h3><p>Hosts the live demo from the repo’s <code>render.yaml</code>, one click to deploy your own copy.</p></div>
+  </div>
+  <p class="sub reveal" style="font-size:15px">Also: FastAPI, three.js (3D replays and the film), NumPy.</p>
+</div></section>
+
 <section id="film"><div class="wrap">
   <div class="kicker reveal">The film</div>
   <h2 class="reveal">Meet Bolt. <em>Watch him break, and get better.</em></h2>
   <p class="sub reveal">A 3-minute film rendered from the real physics recordings, then the live app running on the PayPal sandbox. <a href="https://youtu.be/dJF1CIuEYY8" style="color:var(--orange)">Watch it on YouTube</a></p>
 </div></section>
 
-<footer><div class="wrap">Hazard Pay · built for the PayPal AI Hackathon 2026 · MuJoCo · Google Gemini · PayPal Orders v2 + Payouts · AG Grid · MIT licence · Suryansh Pratap Singh, Nikhil, Raj</div></footer>
+<footer><div class="wrap">Hazard Pay · built for the PayPal AI Hackathon 2026 · PayPal Orders v2 + Payouts · Google Gemini · MuJoCo · AG Grid · Render · MIT licence · Suryansh Pratap Singh, Nikhil, Raj</div></footer>
 
 <script>
 // reveal on scroll

@@ -13,6 +13,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
 
+from . import prerun
 from . import scenario as SC
 from .sim import rollout
 
@@ -20,10 +21,16 @@ _POOL = None
 LAMBDA = 0.12  # plausibility weight
 
 
+def _real_pool():
+    n = int(os.getenv("HAZARDPAY_WORKERS", "0") or 0) or max(2, (os.cpu_count() or 4) - 1)
+    return ProcessPoolExecutor(max_workers=n) if n > 1 else None  # 1 worker: run in-process
+
+
 def pool():
+    """Every batch of rollouts goes through here; results already pre-run come back instantly (see prerun.py)."""
     global _POOL
     if _POOL is None:
-        _POOL = ProcessPoolExecutor(max_workers=max(2, (os.cpu_count() or 4) - 1))
+        _POOL = prerun.CachedPool(_real_pool)
     return _POOL
 
 

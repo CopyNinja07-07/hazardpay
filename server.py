@@ -1,4 +1,6 @@
 """Hazard Pay web server. Run: uvicorn server:app --port 8000"""
+import copy
+import os
 import threading
 import time
 import uuid
@@ -8,14 +10,16 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from hazardpay import ROOT, attacker, claims, llm, paypal
+from hazardpay import ROOT, attacker, claims, llm, paypal, prerun
 from hazardpay import scenario as SC
 from hazardpay.search import attack
-from hazardpay.sim import DEFAULT_CTRL, rollout
+from hazardpay.prerun import rollout
+from hazardpay.sim import DEFAULT_CTRL
 from hazardpay.train import GAUNTLET, GAUNTLET_HASH, gauntlet_rate, train
 from hazardpay.underwrite import MISSIONS, quote
 
 app = FastAPI(title="Hazard Pay", version="1.0.0")
+HOSTED = os.getenv("HAZARDPAY_HOSTED", "").lower() in {"1", "true", "yes"}  # the public demo on Render
 
 STATE = {
     "versions": [{"version": "v1", "ctrl": dict(DEFAULT_CTRL), "created": time.strftime("%H:%M:%S"), "gate": None}],
@@ -29,6 +33,18 @@ STATE = {
 }
 JOBS: dict[str, dict] = {}
 LOCK = threading.Lock()
+FRESH = copy.deepcopy(STATE)
+SEEN = {"t": time.time()}
+
+
+@app.middleware("http")
+async def idle_reset(request, call_next):
+    """Hosted demo: after 20 quiet minutes the next visitor gets a fresh robot v1 and empty ledgers."""
+    if HOSTED and request.url.path.startswith("/api/") and time.time() - SEEN["t"] > 1200:
+        STATE.clear()
+        STATE.update(copy.deepcopy(FRESH))
+    SEEN["t"] = time.time()
+    return await call_next(request)
 
 
 def current():
@@ -67,8 +83,31 @@ def home():
 def status():
     return {"ai": llm.MODEL if llm.live() else "DEMO (hypothesis library)",
             "paypal": "SANDBOX" if paypal.live() else "DEMO (offline fake)",
-            "robot": current()["version"], "gauntlet_hash": GAUNTLET_HASH, "gauntlet_size": len(GAUNTLET),
+            "robot": current()["version"], "hosted": HOSTED, "prerun": prerun.STATS, "gauntlet_hash": GAUNTLET_HASH, "gauntlet_size": len(GAUNTLET),
             "missions": list(STATE["missions"].values()), "ops": {k: {p: v[:4] for p, v in s.items()} for k, s in SC.OPS.items()}}
+
+
+class ResetIn(BaseModel):
+    v2: dict | None = None
+
+
+@app.post("/api/reset")
+def api_reset(body: ResetIn):
+    """Back to robot v1 with empty ledgers (tools/prerun.py may start from a given v2 controller)."""
+    if HOSTED and body.v2:
+        raise HTTPException(403)
+    STATE.clear()
+    STATE.update(copy.deepcopy(FRESH))
+    if body.v2:
+        STATE["versions"].append({"version": "v2", "ctrl": body.v2, "created": time.strftime("%H:%M:%S"), "gate": None})
+    return {"robot": current()["version"]}
+
+
+@app.post("/api/prerun/save")
+def api_prerun_save():
+    if HOSTED:
+        raise HTTPException(403)
+    return {"saved": prerun.save(), "stats": prerun.STATS}
 
 
 @app.get("/api/job/{jid}")
@@ -82,6 +121,7 @@ def get_job(jid: str):
 class MissionIn(BaseModel):
     name: str
     n: int = 3
+    library: bool = False  # skip Gemini, use the built-in hypothesis library
 
 
 @app.post("/api/quote")
@@ -92,6 +132,8 @@ def api_quote(body: MissionIn):
 
     def run(emit):
         emit({"msg": f"Simulating 120 days of '{m['name']}' with robot {current()['version']}…"})
+        if HOSTED:
+            time.sleep(1.2)  # pre-run physics returns at once; keep the log readable
         q = quote(m, current()["ctrl"], current()["version"])
         STATE["quotes"][m["name"]] = q
         emit({"msg": f"P(fail) {q['risk']['p'] * 100:.1f}% → premium ${q['policy']['premium']:.2f}"})
@@ -140,11 +182,21 @@ def api_adversary(body: MissionIn):
     def run(emit):
         hist = [{"name": a["name"], "hypothesis": a["hypothesis"], "confirmed_rate": a.get("confirmed_rate")}
                 for a in STATE["attacks"][-10:]]
-        progs, engine = attacker.propose(m, hist, n=max(1, min(body.n, 5)), offset=len(STATE["attacks"]))
+        n, off = max(1, min(body.n, 5)), len(STATE["attacks"])
+        if HOSTED:  # Gemini's pre-run hypotheses for this mission (new ones would need minutes of live physics here)
+            hit = prerun.get(prerun.key("propose", [m["name"], n, off]))
+            progs, engine = (hit if hit is not prerun.MISS else attacker.propose(m, hist, n=n, offset=off, library=True))
+            engine = engine + " · pre-run"
+        else:
+            progs, engine = attacker.propose(m, hist, n=n, offset=off, library=body.library)
+            if not body.library:
+                prerun.put(prerun.key("propose", [m["name"], n, off]), [progs, engine])
         emit({"msg": f"{engine} wrote {len(progs)} hypotheses"})
         out = []
         for p in progs:
             emit({"msg": f"Testing: {p['hypothesis']}", "program": p})
+            if HOSTED:
+                time.sleep(0.9)
             r = attack(p, current()["ctrl"], quick=True)
             if not r.get("ok"):
                 emit({"msg": "invalid program: " + "; ".join(r["errors"])})
@@ -171,9 +223,22 @@ def api_retrain(gens: int = 6):
     if not bank:
         raise HTTPException(400, "No confirmed failures for the current robot yet: run the adversary first.")
 
+    g = max(2, min(gens, 8))
+    tk = prerun.key("train", [current()["ctrl"], g])
+    if HOSTED and prerun.get(tk) is prerun.MISS:
+        raise HTTPException(400, "This hosted demo ships the pre-run retraining of v1. Run the app locally to train further.")
+
     def run(emit):
         emit({"msg": f"Retraining {current()['version']}'s driver on {len(bank)} failures…"})
-        res = train(bank, current()["ctrl"], gens=max(2, min(gens, 8)), progress=lambda e: emit({"msg": f"generation {e['gen']}: fails {e['bank_fail'] * 100:.0f}% of the bank", **e}))
+        if HOSTED:  # replay the pre-run evolution (minutes of physics), then the gate re-checks it live from cache
+            res, events = copy.deepcopy(prerun.get(tk))
+            for e in events:
+                time.sleep(0.5)
+                emit({"msg": f"generation {e['gen']}: fails {e['bank_fail'] * 100:.0f}% of the bank", **e})
+        else:
+            events = []
+            res = train(bank, current()["ctrl"], gens=g, progress=lambda e: (events.append(e), emit({"msg": f"generation {e['gen']}: fails {e['bank_fail'] * 100:.0f}% of the bank", **e})))
+            prerun.put(tk, [res, events])
         for c in res["checks"]:
             emit({"msg": f"{'PASS' if c['ok'] else 'FAIL'} · {c['check']}: {c['before']} → {c['after']}"})
         if res["accepted"]:

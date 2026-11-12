@@ -58,8 +58,8 @@ def _ops_doc() -> str:
     return "\n".join(lines)
 
 
-def propose(mission: dict, history: list[dict], n: int = 3, offset: int = 0) -> tuple[list[dict], str]:
-    if llm.live():
+def propose(mission: dict, history: list[dict], n: int = 3, offset: int = 0, library: bool = False) -> tuple[list[dict], str]:
+    if llm.live() and not library:
         try:
             prompt = (f"Mission: {mission.get('description', '')}\nDeclared route hazards: {json.dumps(mission['site'])}\n"
                       f"Weather odds: {json.dumps(mission.get('weather', {}))}; cargo {mission.get('cargo_kg', 0)} kg.\n"

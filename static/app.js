@@ -30,6 +30,7 @@ async function boot() {
   $("#cAI").innerHTML = "AI <b>" + esc(S.ai) + "</b>"; if (!S.ai.startsWith("DEMO")) $("#cAI").classList.add("live");
   $("#cPP").innerHTML = "PayPal <b>" + esc(S.paypal) + "</b>"; if (S.paypal === "SANDBOX") $("#cPP").classList.add("live");
   $("#cRobot").innerHTML = "robot <b>" + esc(S.robot) + "</b>";
+  if (S.hosted) $("#cRobot").insertAdjacentHTML("afterend", `<span class="chip live" title="MuJoCo results for the demo flows were simulated ahead of time; pricing, gate, claims and PayPal run live">physics <b>pre-run</b></span>`);
   $("#ghash").textContent = "gauntlet: " + S.gauntlet_size + " scenarios · hash " + S.gauntlet_hash;
   $("#mission").innerHTML = S.missions.map(m => `<option>${esc(m.name)}</option>`).join("");
   $("#mission").onchange = () => { showMission(); preview(); };
