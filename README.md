@@ -6,12 +6,15 @@
 
 ### Insurance for robot jobs, priced by trying to break the robot first.
 
-**[▶ Watch the film (2:32)](https://youtu.be/dJF1CIuEYY8)** · **[Website](https://copyninja07-07.github.io/hazardpay/)** · **[Run it locally](#run-it)** · **[How it works](#how-it-works)**
+### **[▶ Try the live demo](https://hazardpay.onrender.com/)**
+
+**[Watch the film (2:32)](https://youtu.be/dJF1CIuEYY8)** · **[Website](https://copyninja07-07.github.io/hazardpay/)** · **[Judge's guide](#try-it-judges-guide)** · **[Run it locally](#run-it)** · **[Built with](#built-with)**
 
 ![PayPal](https://img.shields.io/badge/PayPal-Orders%20v2%20%2B%20Payouts-003087?logo=paypal&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google&logoColor=white)
 ![MuJoCo](https://img.shields.io/badge/physics-MuJoCo-ff8a3d)
 ![AG Grid](https://img.shields.io/badge/ledgers-AG%20Grid-1c7ed6)
+![Render](https://img.shields.io/badge/hosted%20on-Render-46e3b7?logo=render&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-8%20passing-3ddc91)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -63,6 +66,25 @@ events    webhooks verified with verify-webhook-signature
 
 Tested end to end on the PayPal sandbox: premium captured, claim approved, and a real **$400 sandbox payout** sent.
 
+## Try it: judge's guide
+
+**Live app: [hazardpay.onrender.com](https://hazardpay.onrender.com/)** (the PayPal sandbox is live; free hosting sleeps when idle, so the first visit can take about a minute).
+
+| | Do this | You'll see |
+|---|---|---|
+| 1 | Tab **1. Price the job**: keep **Maple St back door**, press **Run 120 days and price it** | 120 simulated days → **16.7% risk → $83.65** for $400 of cover, with the risk split by hazard |
+| 2 | Tab **2. Try to break it**: **Start the attack** | Gemini's hypotheses, each searched, shrunk and confirmed on 32 fresh seeds; confirmed failures replay in 3D |
+| 3 | Tab **3. Make it safer**: **Practise and check**, then price it again | the 3-check gate (training failures, flat-sidewalk speed, the locked 16-test gauntlet) and a lower price |
+| 4 | Tab **4. Insure and claim**: **Pay with PayPal** | a real **PayPal sandbox Order**; approve it with the sandbox buyer login in the Devpost testing notes, and it's captured |
+| 5 | Set weather **ice**, **Do the delivery**, then **Make a claim** | the run is replayed with one condition removed at a time; covered → a **PayPal Payout** batch id appears in the ledger |
+| ★ | Open **[/?tour=1](https://hazardpay.onrender.com/?tour=1)** | the whole story plays itself |
+
+**What's pre-run, what's live.** The free hosting box has a fraction of one CPU, while one quote is about 240 MuJoCo rollouts. So the
+rollout results for the demo flows were simulated ahead of time and ship in [`prerun/physics.json.gz`](prerun/) (rebuild them with
+[`tools/prerun.py`](tools/prerun.py)). Everything else runs live: the pricing and confidence interval, the signed policy, the gate,
+the claim replay, every PayPal call and the webhooks. A route that wasn't pre-run is simulated live, just slower. Locally, everything
+is computed from scratch.
+
 ## Results
 
 | | |
@@ -73,6 +95,21 @@ Tested end to end on the PayPal sandbox: premium captured, claim approved, and a
 | AI adversary vs blind random attacks, same budget | **6 vs 2** confirmed failures |
 | Claim, icy day | stuck 5.2 m in · delivers without the ice → **approved, $400 PayPal payout** |
 | Claim, 14 kg cargo (limit 10 kg) | the overload caused it → **denied** |
+
+## Built with
+
+| Tool | What it does here |
+|---|---|
+| **PayPal Orders v2** | the premium: create the order, buyer approval, capture; idempotent `PayPal-Request-Id`, policy HMAC as `reference_id` |
+| **PayPal Payouts** | the claim: paid to the robot owner in seconds, `sender_item_id` = claim id |
+| **PayPal Webhooks** | order and payout events, checked with `verify-webhook-signature` |
+| **Google Gemini** | the adversary's failure hypotheses, a site photo or description → route, the claim adjuster's note |
+| **MuJoCo** | the physics twin: six-wheel robot, curbs, ramps, tilted aprons, ice, bumps, cargo, motor sag |
+| **AG Grid** | live ledgers of policies, claims, attacks and robot versions |
+| **Render** | hosts the live demo from [`render.yaml`](render.yaml) |
+| FastAPI · three.js · NumPy | the server, the 3D replays and film, the statistics |
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/CopyNinja07-07/hazardpay)
 
 ## Run it
 
@@ -108,11 +145,14 @@ hazardpay/        the engine
   train.py          retraining + the 3-check gate and locked test suite
   claims.py         counterfactual replay and the claim decision
   paypal.py         Orders v2, capture, Payouts, webhook verification
+  prerun.py         the pre-run physics cache every rollout batch goes through
 server.py         FastAPI app
 static/           web app (3D replay, AG Grid ledgers), auto-demo, website, 3D film
 tests/            offline tests
 experiments/      adversary vs random
-tools/            film rendering (offline 3D), voice and score tools
+prerun/           pre-run physics results for the hosted demo
+tools/            prerun, film rendering (offline 3D), voice and score tools
+render.yaml       the Render deployment
 docs/             film storyboard
 media/            stills from the film
 ```

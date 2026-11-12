@@ -18,6 +18,9 @@ def live() -> bool:
     return bool(KEY) and os.getenv("DEMO_MODE", "").lower() not in {"1", "true", "yes"}
 
 
+COOL = {"until": 0.0}  # after every model is out of quota, don't keep a user waiting on retries
+
+
 def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
     body = {"contents": [{"role": "user", "parts": parts}], "generationConfig": {"temperature": temperature}}
     if json_mode:
@@ -25,6 +28,8 @@ def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
     if system:
         body["systemInstruction"] = {"parts": [{"text": system}]}
     import time
+    if time.time() < COOL["until"]:
+        raise RuntimeError("Gemini over quota; using the fallback for a few minutes")
     chain = [model or MODEL] + [m for m in [MODEL] + FALLBACKS if m != (model or MODEL)]
     for m in chain:  # under load Gemini answers 503/429: retry, then fall back to the next model
         r = None
@@ -34,7 +39,7 @@ def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
             except httpx.HTTPError:
                 r = None
                 continue
-            if r.status_code not in (429, 500, 503):
+            if r.status_code not in (429, 500, 503) or "quota" in r.text.lower():
                 break
             time.sleep(1.5 * (attempt + 1))
         if r is None:
@@ -45,6 +50,8 @@ def _call(parts, temperature=0.4, json_mode=False, system=None, model=None):
         if r.status_code not in (404, 429, 500, 503):
             break
     if r is None or r.status_code != 200:
+        if r is not None and r.status_code == 429:
+            COOL["until"] = time.time() + 300
         raise RuntimeError("Gemini unavailable" if r is None else f"Gemini {r.status_code}: {r.text[:300]}")
     return "".join(p.get("text", "") for p in r.json()["candidates"][0]["content"].get("parts", []))
 

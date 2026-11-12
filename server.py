@@ -186,7 +186,7 @@ def api_adversary(body: MissionIn):
         if HOSTED:  # Gemini's pre-run hypotheses for this mission (new ones would need minutes of live physics here)
             hit = prerun.get(prerun.key("propose", [m["name"], n, off]))
             progs, engine = (hit if hit is not prerun.MISS else attacker.propose(m, hist, n=n, offset=off, library=True))
-            engine = engine + " · pre-run"
+            engine = engine.replace(" (no Gemini key)", "") + " · pre-run"
         else:
             progs, engine = attacker.propose(m, hist, n=n, offset=off, library=body.library)
             if not body.library:
