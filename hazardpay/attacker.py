@@ -80,7 +80,7 @@ def propose(mission: dict, history: list[dict], n: int = 3, offset: int = 0, lib
         except Exception:
             pass
     k = len(LIBRARY)
-    return [LIBRARY[(offset + i) % k] for i in range(n)], "hypothesis library (no Gemini key)"
+    return [LIBRARY[(offset + i) % k] for i in range(n)], ("hypothesis library (Gemini busy)" if llm.live() and not library else "hypothesis library")
 
 
 SITE_PROMPT = """Turn this delivery site into the robot's route hazards. Route is straight along +x for 7 m from the robot.
