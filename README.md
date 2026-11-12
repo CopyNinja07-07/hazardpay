@@ -8,7 +8,7 @@
 
 ### **[▶ Try the live demo](https://hazardpay.onrender.com/)**
 
-**[Watch the film (2:32)](https://youtu.be/dJF1CIuEYY8)** · **[Website](https://copyninja07-07.github.io/hazardpay/)** · **[Judge's guide](#try-it-judges-guide)** · **[Run it locally](#run-it)** · **[Built with](#built-with)**
+**[Watch the film (2:32)](https://youtu.be/dJF1CIuEYY8)** · **[Website](https://copyninja07-07.github.io/hazardpay/)** · **[Deck (PDF)](docs/HazardPay_Deck.pdf)** · **[Judge's guide](#try-it-judges-guide)** · **[Run it locally](#run-it)** · **[Built with](#built-with)**
 
 ![PayPal](https://img.shields.io/badge/PayPal-Orders%20v2%20%2B%20Payouts-003087?logo=paypal&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google&logoColor=white)
@@ -153,7 +153,7 @@ experiments/      adversary vs random
 prerun/           pre-run physics results for the hosted demo
 tools/            prerun, film rendering (offline 3D), voice and score tools
 render.yaml       the Render deployment
-docs/             film storyboard
+docs/             pitch deck (PDF) and film storyboard
 media/            stills from the film
 ```
 
